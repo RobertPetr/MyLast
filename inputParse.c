@@ -12,7 +12,8 @@
  * coduri de eroare:
  * - 1: parametrii gresiti
  * - 2: fisier inexistent/inaccesibil
- * - 3: fisier gol/alterat
+ * - 3: fisier gol
+ * - 4: fisier alterat
  * fisierul dat trebuie sa fie un byte file
 */
 
