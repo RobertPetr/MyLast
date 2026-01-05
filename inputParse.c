@@ -57,9 +57,6 @@ int main(int argc, char **argv)
         fprintf(stderr, "Fisierul este corupt");
         return ERR_CORRUPT;
     }
-
-    int nrLinii = st.st_size / sizeof(struct utmp);
-    printf("%d\n", nrLinii);
     
     // parsarea fisierului in directia inversa (la fel ca last/lastb):
     for (off_t offset = st.st_size - sizeof(struct utmp); offset >= 0; offset -= sizeof(struct utmp))
@@ -89,12 +86,8 @@ int main(int argc, char **argv)
         user[UT_NAMESIZE] = line[UT_LINESIZE] = host[UT_HOSTSIZE] = '\0';
 
         // verificare explicita pentru cazul acesta
-        if (user[0] == '\0')
-        {
-            strcpy(user, "reboot");
-            strcpy(line, "system boot");
-            strcpy(host, "-");
-        }
+        if (line[0] == '~')
+            flag = 1;
         
         printf("%d,%s,%s,%s,%ld,%ld\n",
             flag,
