@@ -85,8 +85,8 @@ int main(int argc, char **argv)
         // asigurare ca toate stringurile se termina cu '\0'
         user[UT_NAMESIZE] = line[UT_LINESIZE] = host[UT_HOSTSIZE] = '\0';
 
-        // verificare explicita pentru cazul acesta
-        if (line[0] == '~')
+        // verificare explicita pentru rebooturi
+        if (line[0] == '~' && user[0] == 'r')
             flag = 1;
         
         printf("%d,%s,%s,%s,%ld,%ld\n",
