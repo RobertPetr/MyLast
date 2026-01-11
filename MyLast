@@ -3,6 +3,9 @@
 b="/var/log/wtmp"
 fl=1
 n=-1
+s=""
+t=""
+p=""
 
 while [[ $# > 0 ]]; do
     case $1 in
@@ -16,14 +19,56 @@ while [[ $# > 0 ]]; do
         n="$1"
         shift
         ;;
+    -s)
+        shift
+        s="$1"
+        shift
+        ;;
+    -t) 
+        shift
+        t="$1"
+        shift
+        ;;
+    -p) 
+        shift
+        p="$1"
+        shift
+        ;;
+    *)
+        echo "parametru necunoscut $1"
+        exit 5
+        ;;
     esac
 done
+
+transformare(){
+    local data="$1" 
+    return $(date -d "$data" +%s)
+}
+
+if [[ "$s" != "" ]]; then
+    s=$(transformare "$s")
+fi
+
+if [[ "$t" != "" ]]; then
+    t=$(transformare "$t")
+fi
+
 
 count=0
 timp_prec=-1
 ./inputParse "$b" | while IFS= read -r linie; do
     IFS=',' read -r f user line host timp durata <<< "$linie"
     if [[ $fl == 1 && $f == 0 || $user == "" ]]; then
+        continue
+    fi
+    if [[ "$s" != "" && $s > $timp ]]; then 
+        break
+    fi
+    if [[ "$t" != "" && $t < $timp ]]; then 
+        if [[ $line == "~" ]]; then
+            timp_prec=$timp 
+        fi
         continue
     fi
     ((count++))
