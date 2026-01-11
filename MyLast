@@ -1,6 +1,7 @@
 #!/bin/bash
 
 b="/var/log/wtmp"
+comanda="./authParse.sh"
 fl=1
 n=-1
 s=""
@@ -14,23 +15,43 @@ while [[ $# > 0 ]]; do
         b="/var/log/btmp"
         shift
         ;;
+    -c)
+        comanda="./inputParse"
+        shift
+        ;;
     -n)
         shift
+        if [[ $# == 0 ]]; then
+            echo "Lipeste un parametru pentru limitarea numarului de linii afisate"
+            exit 5
+        fi
         n="$1"
         shift
         ;;
     -s)
         shift
+        if [[ $# == 0 ]]; then
+            echo "Lipeste un parametru pentru argumentul 'since'"
+            exit 5
+        fi
         s="$1"
         shift
         ;;
     -t) 
         shift
+        if [[ $# == 0 ]]; then
+            echo "Lipeste un parametru pentru argumentul 'until'"
+            exit 5
+        fi
         t="$1"
         shift
         ;;
     -p) 
         shift
+        if [[ $# == 0 ]]; then
+            echo "Lipeste un parametru pentru argumentul 'present'"
+            exit 5
+        fi
         p="$1"
         shift
         ;;
@@ -54,10 +75,11 @@ if [[ "$t" != "" ]]; then
     t=$(transformare "$t")
 fi
 
+cmd=( "$comanda" "$b" )
 
 count=0
 timp_prec=-1
-./inputParse "$b" | while IFS= read -r linie; do
+"${cmd[@]}" | while IFS= read -r linie; do
     IFS=',' read -r f user line host timp durata <<< "$linie"
     if [[ $fl == 1 && $f == 0 || $user == "" ]]; then
         continue
