@@ -65,7 +65,8 @@ done
 
 transformare(){
     local data="$1" 
-    return $(date -d "$data" +%s)
+    date -d "$data" +%s
+
 }
 
 if [[ "$s" != "" ]]; then
@@ -74,6 +75,10 @@ fi
 
 if [[ "$t" != "" ]]; then
     t=$(transformare "$t")
+fi
+
+if [[ "$p" != "" ]]; then
+    p=$(transformare "$p")
 fi
 
 cmd=( "$comanda" "$b" )
@@ -88,31 +93,23 @@ timp_prec=$(date +%s)
     if [[ $f == 0 || $user == "" ]]; then
         continue
     fi
-    if [[ "$s" != "" && $s > $timp ]]; then 
-        break
+    if [[ "$s" != "" && $s -gt $timp ]]; then 
+        exit 0
     fi
     if [[ "$t" != "" && $t < $timp ]]; then 
-        if [[ $line == "~" ]]; then
-            timp_prec=$timp 
-        fi
+        continue
+    fi
+    if [[ "$p" != "" && "$timp" -ne "$p" ]]; then
         continue
     fi
     ((count++))
     if [[ "$n" -ge 0 && "$count" -gt "$n" ]]; then
-        break
+        exit 0
     fi
-    if [[ $line == "~" ]]; then
-        line="system boot"
-        if [[ $timp_prec < 0 ]]; then
-            timp_prec=$timp
-        fi
-    fi
-    if [[ $timp_prec < 0 ]]; then
-        durata="still logged in"
-    else
-        durata=$((timp_prec-timp))
-        durata=$(printf "%d:%02d:%02d" $((durata / 3600)) $((durata / 60 % 60)) $((durata % 60)))
-        timp_prec=$timp
+    durata=$((timp_prec-timp))
+    durata=$(printf "%d:%02d:%02d" $((durata / 3600)) $((durata / 60 % 60)) $((durata % 60)))
+    if [[ $still_logged_in == 1 ]]; then
+        durata=$(printf "still logged in %s" "$durata")
     fi
     timp_prec=$timp
     timp=$(date -d "@$timp" +"%d.%m.%y %H:%M")
