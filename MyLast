@@ -2,7 +2,6 @@
 
 b="/var/log/wtmp"
 comanda="./authParse.sh"
-fl=1
 n=-1
 s=""
 t=""
@@ -11,11 +10,13 @@ p=""
 while [[ $# > 0 ]]; do
     case $1 in
     -b)
-        fl=0
         b="/var/log/btmp"
         shift
         ;;
     -c)
+        if [[ ! -e "./inputParse" ]]; then
+            cc inputParse.c -o inputParse
+        fi
         comanda="./inputParse"
         shift
         ;;
@@ -78,10 +79,13 @@ fi
 cmd=( "$comanda" "$b" )
 
 count=0
-timp_prec=-1
+timp_prec=$(date +%s)
 "${cmd[@]}" | while IFS= read -r linie; do
     IFS=',' read -r f user line host timp durata <<< "$linie"
-    if [[ $fl == 1 && $f == 0 || $user == "" ]]; then
+    if [[ $line == "~" ]]; then
+        line="system boot"
+    fi
+    if [[ $f == 0 || $user == "" ]]; then
         continue
     fi
     if [[ "$s" != "" && $s > $timp ]]; then 
@@ -110,6 +114,7 @@ timp_prec=-1
         durata=$(printf "%d:%02d:%02d" $((durata / 3600)) $((durata / 60 % 60)) $((durata % 60)))
         timp_prec=$timp
     fi
+    timp_prec=$timp
     timp=$(date -d "@$timp" +"%d.%m.%y %H:%M")
     printf "%-10s | %-12s | %-15s | %-10s | %-10s\n" "$user" "$line" "$host" "$timp" "$durata" 
 done
