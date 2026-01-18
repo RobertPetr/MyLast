@@ -17,12 +17,11 @@ while IFS= read -r linie; do
             user=$(echo "$message" | sed -n 's/.*user \([^ ]*\)(uid=[0-9]*).*/\1/p')
             line="tty2"
             flag=1
-        elif [[ "$message" == *"session closed"* ]]; then
-            echo "a"
-            user="reboot"
-            line="~"
-            flag=1
         fi
+    elif [[ "$command" == *"systemd-logind"* && "$message" == *"System is powering down."* && "$b" == "/var/log/wtmp" ]]; then
+        user="reboot"
+        line="~"
+        flag=1
     elif [[ "$command" == *"unix_chkpwd"* && "$b" == "/var/log/btmp" ]]; then
         user=$(echo "$message" | awk '{print $6}' | sed 's/[()]//g')
         line="seat0"
